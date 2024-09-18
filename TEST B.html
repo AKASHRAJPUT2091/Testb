@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Form Validation</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+        }
+
+        .error {
+            color: red;
+            font-size: 12px;
+        }
+
+        input.error {
+            border: 1px solid red;
+        }
+
+        input {
+            padding: 5px;
+            margin: 10px 0;
+        }
+
+        .success {
+            border: 1px solid green;
+        }
+
+        #submit-btn {
+            background-color: lightgray;
+            padding: 10px;
+            border: none;
+            cursor: not-allowed;
+        }
+
+        #submit-btn.enabled {
+            background-color: green;
+            cursor: pointer;
+            color: white;
+        }
+
+        .messages {
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <h1>Booking Place For Your Dinner</h1>
+
+    <form id="myForm">
+        <!-- Name Input -->
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name">
+        <div class="error" id="name-error"></div>
+
+        <!-- Phone Number Input -->
+        <label for="phone">Phone number:</label>
+        <input type="text" id="phone" name="phone">
+        <div class="error" id="phone-error"></div><br>
+
+        <!-- Options: What would you like to have -->
+        <label for="options">What would you like to have with us?:</label><br>
+        <input type="checkbox" name="options" value="Desserts"> Desserts<br>
+        <input type="checkbox" name="options" value="Drinks"> Drinks<br>
+        <input type="checkbox" name="options" value="Starters"> Starters<br>
+        <br>
+
+        <!-- Time Selection -->
+        <label for="time">Select a time:</label><br>
+        <input type="radio" id="time1" name="time" value="05:00" checked> 05:00<br>
+        <input type="radio" id="time2" name="time" value="06:00"> 06:00<br>
+        <input type="radio" id="time3" name="time" value="07:00"> 07:00<br>
+        <input type="radio" id="time4" name="time" value="08:00"> 08:00<br>
+
+        <!-- Submit Button -->
+        <button type="button" id="submit-btn" disabled>Submit</button>
+
+        <!-- Message Area -->
+        <div class="messages" id="messages"></div>
+    </form>
+
+    <script>
+        const nameInput = document.getElementById('name');
+        const phoneInput = document.getElementById('phone');
+        const submitBtn = document.getElementById('submit-btn');
+        const nameError = document.getElementById('name-error');
+        const phoneError = document.getElementById('phone-error');
+        const messagesDiv = document.getElementById('messages');
+
+        function validateName() {
+            const nameValue = nameInput.value.trim();
+            if (!nameValue) {
+                nameError.textContent = 'Error: Name is empty.';
+                nameInput.classList.add('error');
+                return false;
+            } else if (!nameValue.includes(' ') || nameValue.split(' ').length < 2) {
+                nameError.textContent = 'Error: First and last names are required.';
+                nameInput.classList.add('error');
+                return false;
+            } else {
+                nameError.textContent = '';
+                nameInput.classList.remove('error');
+                return true;
+            }
+        }
+
+        function validatePhone() {
+            const phoneValue = phoneInput.value.trim();
+            const phoneRegex = /^[0-9][A-Za-z0-9]{5}$/;
+
+            if (!phoneValue) {
+                phoneError.textContent = 'Error: Phone number is empty.';
+                phoneInput.classList.add('error');
+                return false;
+            } else if (phoneValue.length !== 6) {
+                phoneError.textContent = 'Error: Phone numbers must have exactly 6 characters.';
+                phoneInput.classList.add('error');
+                return false;
+            } else if (!phoneRegex.test(phoneValue)) {
+                phoneError.textContent = 'Error: Phone number must start with numbers.';
+                phoneInput.classList.add('error');
+                return false;
+            } else {
+                phoneError.textContent = '';
+                phoneInput.classList.remove('error');
+                return true;
+            }
+        }
+
+        function updateSubmitButton() {
+            if (validateName() && validatePhone()) {
+                submitBtn.disabled = false;
+                submitBtn.classList.add('enabled');
+            } else {
+                submitBtn.disabled = true;
+                submitBtn.classList.remove('enabled');
+            }
+        }
+
+        // Event listeners for validation
+        nameInput.addEventListener('blur', validateName);
+        phoneInput.addEventListener('blur', validatePhone);
+        nameInput.addEventListener('input', updateSubmitButton);
+        phoneInput.addEventListener('input', updateSubmitButton);
+
+        // Submit button event listener
+        submitBtn.addEventListener('click', function() {
+            if (!submitBtn.disabled) {
+                const nameValue = nameInput.value.trim();
+                const phoneValue = phoneInput.value.trim();
+                const selectedTime = document.querySelector('input[name="time"]:checked').value;
+                
+                // Get selected starters (checkbox values)
+                const starters = Array.from(document.querySelectorAll('input[name="options"]:checked'))
+                    .map(option => option.value)
+                    .join(', ') || 'None'; // If no starters are selected, show "None"
+                
+                // Display the message
+                messagesDiv.textContent = `Reservation for ${nameValue}, Phone: ${phoneValue}, Time: ${selectedTime}, Starters: ${starters}`;
+                messagesDiv.style.color = 'green';
+            }
+        });
+    </script>
+</body>
+</html>
+
